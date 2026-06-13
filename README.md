@@ -49,11 +49,10 @@ Run `pi --list-models` after installing to confirm the provider is loaded.
 
 ## Thinking levels
 
-Volcengine uses `thinking: { "type": "enabled" | "disabled" }` plus `reasoning_effort` for Chat Completions. This extension maps Pi's native thinking selector as follows:
+This extension maps Pi's native thinking selector to provider-specific Chat Completions controls:
 
 - Pi `off` -> `thinking: { "type": "disabled" }`
-- Pi `low`, `medium`, `high` -> `thinking: { "type": "enabled" }` plus matching `reasoning_effort`
+- Most Volcengine reasoning models: Pi `low`, `medium`, `high` -> `thinking: { "type": "enabled" }` plus matching `reasoning_effort`
 - Pi `minimal` is hidden because Volcengine's `reasoning_effort: "minimal"` means no thinking; selecting it clamps to `low`
 - Pi `xhigh` -> `reasoning_effort: "max"` only for models verified to accept it (`ark-code-latest`, `deepseek-v4-flash`, `deepseek-v4-pro`)
-
-`glm-5.1` remains marked as non-reasoning because live Coding Plan API probes accepted thinking parameters but returned no reasoning tokens.
+- `glm-5.1` uses the GLM/Z.AI thinking shape: Pi `low`, `medium`, and `high` send `thinking: { "type": "enabled" }` without `reasoning_effort`; Pi `off` sends disabled.

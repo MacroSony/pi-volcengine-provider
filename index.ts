@@ -6,6 +6,12 @@ export const VOLCENGINE_CODING_BASE_URL = "https://ark.cn-beijing.volces.com/api
 
 type ModelInput = ("text" | "image")[];
 type PiThinkingLevel = "off" | "minimal" | "low" | "medium" | "high" | "xhigh";
+type VolcengineOpenAICompat = {
+  supportsDeveloperRole?: boolean;
+  supportsReasoningEffort?: boolean;
+  maxTokensField?: "max_completion_tokens" | "max_tokens";
+  thinkingFormat?: "deepseek" | "zai";
+};
 
 interface VolcengineModelDefinition {
   id: string;
@@ -15,6 +21,7 @@ interface VolcengineModelDefinition {
   maxTokens: number;
   reasoning: boolean;
   thinkingLevelMap?: Partial<Record<PiThinkingLevel, string | null>>;
+  compat?: VolcengineOpenAICompat;
 }
 
 const TEXT_ONLY: ModelInput = ["text"];
@@ -28,7 +35,14 @@ const OPENAI_COMPAT = {
 const VOLCENGINE_THINKING_COMPAT = {
   supportsDeveloperRole: false,
   supportsReasoningEffort: true,
+  maxTokensField: "max_tokens" as const,
   thinkingFormat: "deepseek" as const,
+};
+
+const ZAI_THINKING_COMPAT = {
+  supportsDeveloperRole: false,
+  maxTokensField: "max_tokens" as const,
+  thinkingFormat: "zai" as const,
 };
 
 // Volcengine uses `minimal` to mean "no thinking". Pi already has a separate
@@ -73,8 +87,10 @@ export const MODELS: VolcengineModelDefinition[] = [
     name: "glm-5.1",
     input: TEXT_ONLY,
     contextWindow: 200000,
-    maxTokens: 65536,
-    reasoning: false,
+    maxTokens: 131072,
+    reasoning: true,
+    thinkingLevelMap: VOLCENGINE_THINKING_LEVEL_MAP,
+    compat: ZAI_THINKING_COMPAT,
   },
   {
     id: "deepseek-v4-flash",
@@ -152,7 +168,7 @@ export default function volcengineProvider(pi: ExtensionAPI) {
       input: [...model.input],
       cost: { ...ZERO_COST },
       ...(model.thinkingLevelMap ? { thinkingLevelMap: { ...model.thinkingLevelMap } } : {}),
-      compat: model.reasoning ? { ...VOLCENGINE_THINKING_COMPAT } : { ...OPENAI_COMPAT },
+      compat: { ...(model.compat ?? (model.reasoning ? VOLCENGINE_THINKING_COMPAT : OPENAI_COMPAT)) },
     })),
   });
 }
