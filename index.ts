@@ -5,6 +5,7 @@ export const PROVIDER_NAME = "Volcengine Coding Plan";
 export const VOLCENGINE_CODING_BASE_URL = "https://ark.cn-beijing.volces.com/api/coding/v3";
 
 type ModelInput = ("text" | "image")[];
+type PiThinkingLevel = "off" | "minimal" | "low" | "medium" | "high" | "xhigh";
 
 interface VolcengineModelDefinition {
   id: string;
@@ -12,6 +13,8 @@ interface VolcengineModelDefinition {
   input: ModelInput;
   contextWindow: number;
   maxTokens: number;
+  reasoning: boolean;
+  thinkingLevelMap?: Partial<Record<PiThinkingLevel, string | null>>;
 }
 
 const TEXT_ONLY: ModelInput = ["text"];
@@ -21,6 +24,23 @@ const OPENAI_COMPAT = {
   supportsDeveloperRole: false,
   maxTokensField: "max_tokens" as const,
 };
+
+const VOLCENGINE_THINKING_COMPAT = {
+  supportsDeveloperRole: false,
+  supportsReasoningEffort: true,
+  thinkingFormat: "deepseek" as const,
+};
+
+// Volcengine uses `minimal` to mean "no thinking". Pi already has a separate
+// `off` level, so hide Pi's `minimal` and clamp it up to `low`.
+const VOLCENGINE_THINKING_LEVEL_MAP = {
+  minimal: null,
+} satisfies Partial<Record<PiThinkingLevel, string | null>>;
+
+const VOLCENGINE_MAX_THINKING_LEVEL_MAP = {
+  ...VOLCENGINE_THINKING_LEVEL_MAP,
+  xhigh: "max",
+} satisfies Partial<Record<PiThinkingLevel, string | null>>;
 
 const ZERO_COST = {
   input: 0,
@@ -36,6 +56,8 @@ export const MODELS: VolcengineModelDefinition[] = [
     input: TEXT_AND_IMAGE,
     contextWindow: 256000,
     maxTokens: 32000,
+    reasoning: true,
+    thinkingLevelMap: VOLCENGINE_MAX_THINKING_LEVEL_MAP,
   },
   {
     id: "doubao-seed-code",
@@ -43,6 +65,8 @@ export const MODELS: VolcengineModelDefinition[] = [
     input: TEXT_AND_IMAGE,
     contextWindow: 256000,
     maxTokens: 32000,
+    reasoning: true,
+    thinkingLevelMap: VOLCENGINE_THINKING_LEVEL_MAP,
   },
   {
     id: "glm-5.1",
@@ -50,6 +74,7 @@ export const MODELS: VolcengineModelDefinition[] = [
     input: TEXT_ONLY,
     contextWindow: 200000,
     maxTokens: 65536,
+    reasoning: false,
   },
   {
     id: "deepseek-v4-flash",
@@ -57,6 +82,8 @@ export const MODELS: VolcengineModelDefinition[] = [
     input: TEXT_ONLY,
     contextWindow: 1024000,
     maxTokens: 65536,
+    reasoning: true,
+    thinkingLevelMap: VOLCENGINE_MAX_THINKING_LEVEL_MAP,
   },
   {
     id: "deepseek-v4-pro",
@@ -64,6 +91,8 @@ export const MODELS: VolcengineModelDefinition[] = [
     input: TEXT_ONLY,
     contextWindow: 1024000,
     maxTokens: 65536,
+    reasoning: true,
+    thinkingLevelMap: VOLCENGINE_MAX_THINKING_LEVEL_MAP,
   },
   {
     id: "doubao-seed-2.0-code",
@@ -71,6 +100,8 @@ export const MODELS: VolcengineModelDefinition[] = [
     input: TEXT_AND_IMAGE,
     contextWindow: 256000,
     maxTokens: 65536,
+    reasoning: true,
+    thinkingLevelMap: VOLCENGINE_THINKING_LEVEL_MAP,
   },
   {
     id: "doubao-seed-2.0-pro",
@@ -78,6 +109,8 @@ export const MODELS: VolcengineModelDefinition[] = [
     input: TEXT_AND_IMAGE,
     contextWindow: 256000,
     maxTokens: 65536,
+    reasoning: true,
+    thinkingLevelMap: VOLCENGINE_THINKING_LEVEL_MAP,
   },
   {
     id: "doubao-seed-2.0-lite",
@@ -85,6 +118,8 @@ export const MODELS: VolcengineModelDefinition[] = [
     input: TEXT_AND_IMAGE,
     contextWindow: 256000,
     maxTokens: 65536,
+    reasoning: true,
+    thinkingLevelMap: VOLCENGINE_THINKING_LEVEL_MAP,
   },
   {
     id: "minimax-latest",
@@ -92,6 +127,8 @@ export const MODELS: VolcengineModelDefinition[] = [
     input: TEXT_ONLY,
     contextWindow: 200000,
     maxTokens: 65536,
+    reasoning: true,
+    thinkingLevelMap: VOLCENGINE_THINKING_LEVEL_MAP,
   },
   {
     id: "kimi-k2.6",
@@ -99,6 +136,8 @@ export const MODELS: VolcengineModelDefinition[] = [
     input: TEXT_AND_IMAGE,
     contextWindow: 256000,
     maxTokens: 32000,
+    reasoning: true,
+    thinkingLevelMap: VOLCENGINE_THINKING_LEVEL_MAP,
   },
 ];
 
@@ -111,9 +150,9 @@ export default function volcengineProvider(pi: ExtensionAPI) {
     models: MODELS.map((model) => ({
       ...model,
       input: [...model.input],
-      reasoning: false,
       cost: { ...ZERO_COST },
-      compat: { ...OPENAI_COMPAT },
+      ...(model.thinkingLevelMap ? { thinkingLevelMap: { ...model.thinkingLevelMap } } : {}),
+      compat: model.reasoning ? { ...VOLCENGINE_THINKING_COMPAT } : { ...OPENAI_COMPAT },
     })),
   });
 }
