@@ -4,6 +4,22 @@ Pi package that registers a Volcengine Ark Coding API provider.
 
 ## Install
 
+npm package: [pi-volcengine-provider](https://www.npmjs.com/package/pi-volcengine-provider)
+
+Recommended install from npm:
+
+```bash
+pi install npm:pi-volcengine-provider
+```
+
+To pin a specific npm version:
+
+```bash
+pi install npm:pi-volcengine-provider@0.1.2
+```
+
+You can also install from GitHub:
+
 ```bash
 pi install git:github.com/MacroSony/pi-volcengine-provider
 ```
@@ -12,6 +28,12 @@ For local development:
 
 ```bash
 pi -e /path/to/pi-volcengine-provider
+```
+
+To try the published package for one run without installing it:
+
+```bash
+pi -e npm:pi-volcengine-provider
 ```
 
 ## Authentication
