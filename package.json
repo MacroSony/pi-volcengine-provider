@@ -1,6 +1,6 @@
 {
   "name": "pi-volcengine-provider",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Pi provider extension for Volcengine Ark Coding API models.",
   "type": "module",
   "license": "MIT",

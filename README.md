@@ -32,18 +32,21 @@ export VOLCENGINE_API_KEY=your-volcengine-key
 
 ## Models
 
-This extension registers:
+This extension follows the [Volcengine Coding Plan model list](https://www.volcengine.com/docs/82379/1925114?lang=zh) and registers:
 
 - `ark-code-latest`
-- `doubao-seed-code`
-- `glm-5.1`
-- `deepseek-v4-flash`
-- `deepseek-v4-pro`
 - `doubao-seed-2.0-code`
 - `doubao-seed-2.0-pro`
 - `doubao-seed-2.0-lite`
-- `minimax-latest`
+- `doubao-seed-code`
+- `minimax-m2.7`
+- `minimax-m3`
+- `glm-5.2`
+- `glm-latest`
+- `deepseek-v4-flash`
+- `deepseek-v4-pro`
 - `kimi-k2.6`
+- `kimi-k2.7-code`
 
 Run `pi --list-models` after installing to confirm the provider is loaded.
 
@@ -55,4 +58,4 @@ This extension maps Pi's native thinking selector to provider-specific Chat Comp
 - Most Volcengine reasoning models: Pi `low`, `medium`, `high` -> `thinking: { "type": "enabled" }` plus matching `reasoning_effort`
 - Pi `minimal` is hidden because Volcengine's `reasoning_effort: "minimal"` means no thinking; selecting it clamps to `low`
 - Pi `xhigh` -> `reasoning_effort: "max"` only for models verified to accept it (`ark-code-latest`, `deepseek-v4-flash`, `deepseek-v4-pro`)
-- `glm-5.1` uses the GLM/Z.AI thinking shape: Pi `low`, `medium`, and `high` send `thinking: { "type": "enabled" }` without `reasoning_effort`; Pi `off` sends disabled.
+- `glm-5.2` and `glm-latest` use the GLM/Z.AI thinking shape: Pi `low`, `medium`, and `high` send `thinking: { "type": "enabled" }` without `reasoning_effort`; Pi `off` sends disabled.
